@@ -1,5 +1,6 @@
 package com.example.chatting;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,8 +49,12 @@ public class ContactListActivity extends AppCompatActivity {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //Inside here we start the chat activity
 
+                    //Inside here we start the chat activity
+                    Intent intent = new Intent(ContactListActivity.this
+                            ,ChatActivity.class);
+                    intent.putExtra("EXTRA_CONTACT_JID",mContact.getJid());
+                    startActivity(intent);
                 }
             });
         }
