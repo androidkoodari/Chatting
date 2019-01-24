@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -32,6 +33,7 @@ public class LoginActivity extends AppCompatActivity
      */
     private static final int REQUEST_READ_CONTACTS = 0;
 
+    private static final String TAG  = "LoginActivity";
 
     // UI references.
     private AutoCompleteTextView mJidView;
@@ -161,10 +163,10 @@ public class LoginActivity extends AppCompatActivity
 
             //showProgress(true);
 
+            //showProgress(true);<<---FOR NOW WE DON'T WANT TO SEE THIS PROGRESS THING.
             //This is where the login login is fired up.
-
-            Intent intent = new Intent(this, ContactListActivity.class);
-            startActivity(intent);
+            Log.d(TAG, "Jid and password are valid ,proceeding with login.");
+            startActivity(new Intent(this, ContactListActivity.class));
         }
     }
 
