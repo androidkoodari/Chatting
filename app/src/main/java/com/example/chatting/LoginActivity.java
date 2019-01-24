@@ -19,6 +19,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -57,7 +58,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
+    private AutoCompleteTextView mJidView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -67,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.jid);
+        mJidView = (AutoCompleteTextView) findViewById(R.id.jid);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -82,8 +83,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.jid_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mJidSignInButton = (Button) findViewById(R.id.jid_in_button);
+        mJidSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -99,7 +100,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return;
         }
 
-        getLoaderManager().initLoader(0, null, this);
+      //  getLoaderManager().initLoader(0, null, this);
     }
 
     private boolean mayRequestContacts() {
@@ -110,7 +111,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             return true;
         }
         if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
+            Snackbar.make(mJidView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
                     .setAction(android.R.string.ok, new View.OnClickListener() {
                         @Override
                         @TargetApi(Build.VERSION_CODES.M)
@@ -143,17 +144,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
+    /*private void attemptLogin() {
         if (mAuthTask != null) {
             return;
         }
 
         // Reset errors.
-        mEmailView.setError(null);
+        mJidView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String email = mJidView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -168,12 +169,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+            mJidView.setError(getString(R.string.error_field_required));
+            focusView = mJidView;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_jid));
-            focusView = mEmailView;
+            mJidView.setError(getString(R.string.error_invalid_jid));
+            focusView = mJidView;
             cancel = true;
         }
 
@@ -190,6 +191,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+
+
+
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");
@@ -198,7 +202,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return password.length() > 4;
-    }
+    }*/
+
+    //*********************
+
+    private void attemptLogin() {
+
+        showProgress(true);
+        Log.d("","Jid and password are valid ,proceeding with login.y");
+
+        }
+
+
+    //***********
 
     /**
      * Shows the progress UI and hides the login form.
@@ -276,7 +292,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 new ArrayAdapter<>(LoginActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        mEmailView.setAdapter(adapter);
+        mJidView.setAdapter(adapter);
     }
 
 
