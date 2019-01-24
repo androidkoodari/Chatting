@@ -3,7 +3,6 @@ package com.example.chatting;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -173,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<C
             focusView = mEmailView;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
+            mEmailView.setError(getString(R.string.error_invalid_jid));
             focusView = mEmailView;
             cancel = true;
         }
