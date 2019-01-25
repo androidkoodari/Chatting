@@ -4,12 +4,15 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.telecom.ConnectionService;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -167,7 +170,11 @@ public class LoginActivity extends AppCompatActivity
             //This is where the login login is fired up.
             Log.d(TAG, "Jid and password are valid ,proceeding with login.");
             startActivity(new Intent(this, ContactListActivity.class));
+
+            //Save the credentials and login
+            saveCredentialsAndLogin();
         }
+
     }
 
     private boolean isJidValid(String jid) {
@@ -215,4 +222,21 @@ public class LoginActivity extends AppCompatActivity
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
+
+    private void saveCredentialsAndLogin()
+    {
+        Log.d(TAG,"saveCredentialsAndLogin() called.");
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.edit()
+                .putString("xmpp_jid", mJidView.getText().toString())
+                .putString("xmpp_password", mPasswordView.getText().toString())
+                .putBoolean("xmpp_logged_in",true)
+                .commit();
+
+        //Start the service
+        Intent i1 = new Intent(this,ChattingConnectionService.class);
+        startService(i1);
+
+    }
+
 }
