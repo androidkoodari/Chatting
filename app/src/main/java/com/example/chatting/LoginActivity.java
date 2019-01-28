@@ -3,7 +3,10 @@ package com.example.chatting;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -38,6 +41,9 @@ public class LoginActivity extends AppCompatActivity
 
     private static final String TAG  = "LoginActivity";
 
+    private BroadcastReceiver mBroadcastReceiver;
+    private Context mContext;
+
     // UI references.
     private AutoCompleteTextView mJidView;
     private EditText mPasswordView;
@@ -53,6 +59,7 @@ public class LoginActivity extends AppCompatActivity
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
+
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -65,6 +72,7 @@ public class LoginActivity extends AppCompatActivity
         });
 
         Button mJidSignInButton = (Button) findViewById(R.id.jid_sign_in_button);
+
         mJidSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -164,12 +172,12 @@ public class LoginActivity extends AppCompatActivity
             // perform the user login attempt.
 
 
-            //showProgress(true);
+            showProgress(true);
 
             //showProgress(true);<<---FOR NOW WE DON'T WANT TO SEE THIS PROGRESS THING.
             //This is where the login login is fired up.
             Log.d(TAG, "Jid and password are valid ,proceeding with login.");
-            startActivity(new Intent(this, ContactListActivity.class));
+           // startActivity(new Intent(this, ContactListActivity.class));
 
             //Save the credentials and login
             saveCredentialsAndLogin();
@@ -237,6 +245,39 @@ public class LoginActivity extends AppCompatActivity
         Intent i1 = new Intent(this,ChattingConnectionService.class);
         startService(i1);
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.unregisterReceiver(mBroadcastReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                String action = intent.getAction();
+                switch (action)
+                {
+                    case ChattingConnectionService.UI_AUTHENTICATED:
+                        Log.d(TAG,"Got a broadcast to show the ContactListActivity window");
+                        //Show the main app window
+                        showProgress(false);
+                        Intent contactlist = new Intent(/*mContext*/context,ContactListActivity.class);
+                        startActivity(contactlist);
+                        finish();
+                        break;
+                }
+
+            }
+        };
+
+        IntentFilter filter = new IntentFilter(ChattingConnectionService.UI_AUTHENTICATED);
+        this.registerReceiver(mBroadcastReceiver, filter);
     }
 
 }

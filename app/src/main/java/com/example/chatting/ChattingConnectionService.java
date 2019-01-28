@@ -16,7 +16,10 @@ import java.io.IOException;
 
 
 public class ChattingConnectionService extends Service {
-    private static final String TAG ="ChattingService";
+
+    private static final String TAG ="ChattingConnService";
+
+    public static final String UI_AUTHENTICATED = "com.example.chatting.uiauthenticated";
 
     public static ChattingConnection.ConnectionState sConnectionState;
     public static ChattingConnection.LoggedInState sLoggedInState;

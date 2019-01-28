@@ -33,7 +33,7 @@ public class ContactModel {
 
         Contact contact1 = new Contact("User1@server.com");
         mContacts.add(contact1);
-        Contact contact2 = new Contact("User2@server.com");
+    /*    Contact contact2 = new Contact("User2@server.com");
         mContacts.add(contact2);
         Contact contact3 = new Contact("User3@server.com");
         mContacts.add(contact3);
@@ -44,7 +44,7 @@ public class ContactModel {
         Contact contact6 = new Contact("User6@server.com");
         mContacts.add(contact6);
         Contact contact7 = new Contact("User7@server.com");
-        mContacts.add(contact7);
+        mContacts.add(contact7);*/
     }
 
     public List<Contact> getContacts()

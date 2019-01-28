@@ -38,6 +38,7 @@ public class ContactListActivity extends AppCompatActivity {
 
     private class ContactHolder extends RecyclerView.ViewHolder
     {
+
         private TextView contactTextView;
         private Contact mContact;
         public ContactHolder ( View itemView)

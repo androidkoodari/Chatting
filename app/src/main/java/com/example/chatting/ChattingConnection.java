@@ -1,11 +1,19 @@
 package com.example.chatting;
 
-
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.telecom.ConnectionService;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 //import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
 import org.jivesoftware.smack.ReconnectionManager;
 import org.jivesoftware.smack.SmackException;
@@ -44,7 +52,8 @@ public class ChattingConnection implements ConnectionListener{
 
     public ChattingConnection( Context context)
     {
-        Log.d(TAG,"RoosterConnection Constructor called.");
+
+        Log.d(TAG,"ChattingConnection Constructor called.");
         mApplicationContext = context.getApplicationContext();
         String jid = PreferenceManager.getDefaultSharedPreferences(mApplicationContext)
                 .getString("xmpp_jid",null);
@@ -66,8 +75,6 @@ public class ChattingConnection implements ConnectionListener{
     public void connect() throws IOException,XMPPException,SmackException
     {
         Log.d(TAG, "Connecting to server " + mServiceName);
-       // XMPPTCPConnectionConfiguration.XMPPTCPConnectionConfigurationBuilder builder=
-        //       XMPPTCPConnectionConfiguration.builder();
 
         XMPPTCPConnectionConfiguration.Builder config = XMPPTCPConnectionConfiguration.builder();
 
@@ -76,15 +83,32 @@ public class ChattingConnection implements ConnectionListener{
         //config.setRosterLoadedAtLogin(true);
         config.setResource("Chatting");
 
-
+        config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled); //*******
+        config.setDebuggerEnabled(true);//********
+       // config.setPort(5222);//***
 
         //Set up the ui thread broadcast message receiver.
         //setupUiThreadBroadCastMessageReceiver();
 
         mConnection = new XMPPTCPConnection(config.build());
         mConnection.addConnectionListener(this);
-       // mConnection.connect();
-       // mConnection.login();
+
+        try {
+            mConnection.connect();
+            if(mConnection.isConnected())
+            {
+                Log.d(TAG, "Connected to server " + mServiceName);
+            }
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            mConnection.login();
+        }
+        catch (InterruptedException e) {
+        }
 
         ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(mConnection);
         reconnectionManager.setEnabledPerDefault(true);
@@ -96,8 +120,9 @@ public class ChattingConnection implements ConnectionListener{
 
     public void disconnect()
     {
-        Log.d(TAG,"Disconnecting from serser "+ mServiceName);
-     /*   try
+        Log.d(TAG,"Disconnecting from server "+ mServiceName);
+
+   /*     try
         {
             if (mConnection != null)
             {
@@ -119,6 +144,7 @@ public class ChattingConnection implements ConnectionListener{
     public void connected(XMPPConnection connection) {
         ChattingConnectionService.sConnectionState=ConnectionState.CONNECTED;
         Log.d(TAG,"Connected Successfully");
+
     }
 
     @Override
@@ -126,6 +152,7 @@ public class ChattingConnection implements ConnectionListener{
         ChattingConnectionService.sConnectionState=ConnectionState.CONNECTED;
         Log.d(TAG,"Authenticated Successfully");
 
+        showContactListActivityWhenAuthenticated();
     }
 
     @Override
@@ -161,6 +188,14 @@ public class ChattingConnection implements ConnectionListener{
         ChattingConnectionService.sConnectionState = ConnectionState.DISCONNECTED;
         Log.d(TAG,"ReconnectionFailed()");
 
+    }
+
+    private void showContactListActivityWhenAuthenticated()
+    {
+        Intent i = new Intent(ChattingConnectionService.UI_AUTHENTICATED);
+        i.setPackage(mApplicationContext.getPackageName());
+        mApplicationContext.sendBroadcast(i);
+        Log.d(TAG,"Sent the broadcast that we are authenticated");
     }
 }
 
