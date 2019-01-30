@@ -11,15 +11,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.jivesoftware.smack.SmackException;
 import java.util.List;
 
 
 public class ContactListActivity extends AppCompatActivity {
 
     private static final String TAG = "ContactListActivity";
-
     private RecyclerView contactsRecyclerView;
     private ContactAdapter mAdapter;
+    private ChattingConnectionService mChattingConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,7 @@ public class ContactListActivity extends AppCompatActivity {
 
         mAdapter = new ContactAdapter(contacts);
         contactsRecyclerView.setAdapter(mAdapter);
+        mChattingConnectionService = ChattingConnectionService.getInstance();
     }
 
     private class ContactHolder extends RecyclerView.ViewHolder
@@ -53,9 +55,20 @@ public class ContactListActivity extends AppCompatActivity {
 
                     //Inside here we start the chat activity
                     Intent intent = new Intent(ContactListActivity.this
-                            ,ChatActivity.class);
-                    intent.putExtra("EXTRA_CONTACT_JID",mContact.getJid());
+                            , ChatActivity.class);
+                    intent.putExtra("EXTRA_CONTACT_JID", mContact.getJid());
                     startActivity(intent);
+
+                    //******** only for testing
+                    try{
+                        mChattingConnectionService.getBuddies();
+
+                    }
+                    catch (InterruptedException| SmackException.NotLoggedInException |
+                            SmackException.NotConnectedException e){
+                    }
+
+                    //*********
                 }
             });
         }
@@ -74,8 +87,6 @@ public class ContactListActivity extends AppCompatActivity {
         }
     }
 
-
-//********
 
 
     private class ContactAdapter extends RecyclerView.Adapter<ContactHolder>
@@ -109,7 +120,4 @@ public class ContactListActivity extends AppCompatActivity {
             return mContacts.size();
         }
     }
-
-    //***********
-
 }

@@ -34,6 +34,7 @@ import static android.Manifest.permission.READ_CONTACTS;
  */
 public class LoginActivity extends AppCompatActivity
 {
+
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -267,7 +268,7 @@ public class LoginActivity extends AppCompatActivity
                         Log.d(TAG,"Got a broadcast to show the ContactListActivity window");
                         //Show the main app window
                         showProgress(false);
-                        Intent contactlist = new Intent(/*mContext*/context,ContactListActivity.class);
+                        Intent contactlist = new Intent(context,ContactListActivity.class);
                         startActivity(contactlist);
                         finish();
                         break;

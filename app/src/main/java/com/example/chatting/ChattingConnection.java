@@ -20,15 +20,18 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 //import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 public class ChattingConnection implements ConnectionListener{
-
 
     private static final String TAG = "ChattingConnection";
 
@@ -37,6 +40,8 @@ public class ChattingConnection implements ConnectionListener{
     private  final String mPassword;
     private  final String mServiceName;
     private XMPPTCPConnection mConnection;
+
+   // private static ChattingConnection instance = null;
 
 
     public static enum ConnectionState
@@ -47,12 +52,13 @@ public class ChattingConnection implements ConnectionListener{
     public static enum LoggedInState
     {
         LOGGED_IN , LOGGED_OUT;
+
     }
+
 
 
     public ChattingConnection( Context context)
     {
-
         Log.d(TAG,"ChattingConnection Constructor called.");
         mApplicationContext = context.getApplicationContext();
         String jid = PreferenceManager.getDefaultSharedPreferences(mApplicationContext)
@@ -86,7 +92,6 @@ public class ChattingConnection implements ConnectionListener{
         config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled); //*******
         config.setDebuggerEnabled(true);//********
        // config.setPort(5222);//***
-
         //Set up the ui thread broadcast message receiver.
         //setupUiThreadBroadCastMessageReceiver();
 
@@ -113,7 +118,6 @@ public class ChattingConnection implements ConnectionListener{
         ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(mConnection);
         reconnectionManager.setEnabledPerDefault(true);
         reconnectionManager.enableAutomaticReconnection();
-
     }
 
 
@@ -122,7 +126,7 @@ public class ChattingConnection implements ConnectionListener{
     {
         Log.d(TAG,"Disconnecting from server "+ mServiceName);
 
-   /*     try
+   /*    try
         {
             if (mConnection != null)
             {
@@ -144,7 +148,7 @@ public class ChattingConnection implements ConnectionListener{
     public void connected(XMPPConnection connection) {
         ChattingConnectionService.sConnectionState=ConnectionState.CONNECTED;
         Log.d(TAG,"Connected Successfully");
-
+        XMPPConn.getInstance().setConnection(mConnection);
     }
 
     @Override
@@ -187,7 +191,6 @@ public class ChattingConnection implements ConnectionListener{
     public void reconnectionFailed(Exception e) {
         ChattingConnectionService.sConnectionState = ConnectionState.DISCONNECTED;
         Log.d(TAG,"ReconnectionFailed()");
-
     }
 
     private void showContactListActivityWhenAuthenticated()
@@ -196,7 +199,9 @@ public class ChattingConnection implements ConnectionListener{
         i.setPackage(mApplicationContext.getPackageName());
         mApplicationContext.sendBroadcast(i);
         Log.d(TAG,"Sent the broadcast that we are authenticated");
+
     }
+
 }
 
 

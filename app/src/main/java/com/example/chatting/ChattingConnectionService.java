@@ -2,6 +2,7 @@
 package com.example.chatting;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -10,9 +11,16 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 
 public class ChattingConnectionService extends Service {
@@ -24,10 +32,14 @@ public class ChattingConnectionService extends Service {
     public static ChattingConnection.ConnectionState sConnectionState;
     public static ChattingConnection.LoggedInState sLoggedInState;
 
+    private static ChattingConnectionService instance = null;
+    private static XMPPConnection mXmppTcpConnection = null;
+
     private boolean mActive;//Stores whether or not the thread is active
     private Thread mThread;
     private Handler mTHandler;//We use this handler to post messages to
     //the background thread.
+
     private ChattingConnection mConnection;
 
     public ChattingConnectionService() {
@@ -63,6 +75,8 @@ public class ChattingConnectionService extends Service {
         super.onCreate();
         Log.d(TAG,"onCreate()");
     }
+
+
     private void initConnection()
     {
         Log.d(TAG,"initConnection()");
@@ -101,16 +115,11 @@ public class ChattingConnectionService extends Service {
                         initConnection();
                         //THE CODE HERE RUNS IN A BACKGROUND THREAD.
                         Looper.loop();
-
                     }
                 });
                 mThread.start();
             }
-
-
         }
-
-
     }
 
     public void stop()
@@ -143,4 +152,35 @@ public class ChattingConnectionService extends Service {
         super.onDestroy();
         stop();
     }
+
+    public /*List<RosterEntry>*/void getBuddies() throws SmackException.NotLoggedInException,
+            InterruptedException, SmackException.NotConnectedException {
+
+        Log.d(TAG,"getBuddies() ");
+
+        mXmppTcpConnection = XMPPConn.getInstance().getConnection();
+
+       Roster roster = Roster.getInstanceFor(mXmppTcpConnection);
+
+       if (!roster.isLoaded())
+            roster.reloadAndWait();
+        Collection<RosterEntry> entries = roster.getEntries();
+        List<RosterEntry> roasterInfo = new ArrayList<RosterEntry>();
+        for (RosterEntry entry : entries) {
+            roasterInfo.add(entry);
+            Log.d(TAG,"Here: " + entry.toString());
+           // Log.d(TAG,"User: " + entry.getUser());//get userinfo
+            Log.d(TAG,"User Name:"+entry.getName());//get username
+           // Log.d(TAG,"User Status: "+entry.getStatus()); //get status of user
+        }
+        //  return roasterInfo;
+    }
+
+    public static ChattingConnectionService getInstance() {
+        if(instance==null){
+            instance = new ChattingConnectionService();
+        }
+        return instance;
+    }
+
 }
