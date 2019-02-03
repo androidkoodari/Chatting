@@ -2,8 +2,10 @@
 package com.example.chatting;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -25,9 +27,14 @@ import java.util.List;
 
 public class ChattingConnectionService extends Service {
 
+    private BroadcastReceiver mBroadcastReceiver;
+
     private static final String TAG ="ChattingConnService";
 
     public static final String UI_AUTHENTICATED = "com.example.chatting.uiauthenticated";
+    public static final String SEND_MESSAGE = "com.example.chatting.sendmessage";
+    public static final String BUNDLE_MESSAGE_BODY = "b_body";
+    public static final String BUNDLE_TO = "b_to";
 
     public static ChattingConnection.ConnectionState sConnectionState;
     public static ChattingConnection.LoggedInState sLoggedInState;
@@ -95,7 +102,6 @@ public class ChattingConnectionService extends Service {
             //Stop the service all together.
             stopSelf();
         }
-
     }
 
     public void start()
@@ -134,7 +140,6 @@ public class ChattingConnectionService extends Service {
                 //CODE HERE IS MEANT TO SHUT DOWN OUR CONNECTION TO THE SERVER.
             }
         });
-
     }
 
 
@@ -153,7 +158,7 @@ public class ChattingConnectionService extends Service {
         stop();
     }
 
-    public /*List<RosterEntry>*/void getBuddies() throws SmackException.NotLoggedInException,
+    public /*List<RosterEntry>*/Roster /*void*/ getBuddies() throws SmackException.NotLoggedInException,
             InterruptedException, SmackException.NotConnectedException {
 
         Log.d(TAG,"getBuddies() ");
@@ -163,18 +168,11 @@ public class ChattingConnectionService extends Service {
        Roster roster = Roster.getInstanceFor(mXmppTcpConnection);
 
        if (!roster.isLoaded())
-            roster.reloadAndWait();
-        Collection<RosterEntry> entries = roster.getEntries();
-        List<RosterEntry> roasterInfo = new ArrayList<RosterEntry>();
-        for (RosterEntry entry : entries) {
-            roasterInfo.add(entry);
-            Log.d(TAG,"Here: " + entry.toString());
-           // Log.d(TAG,"User: " + entry.getUser());//get userinfo
-            Log.d(TAG,"User Name:"+entry.getName());//get username
-           // Log.d(TAG,"User Status: "+entry.getStatus()); //get status of user
-        }
-        //  return roasterInfo;
+           roster.reloadAndWait();
+
+          return roster;
     }
+
 
     public static ChattingConnectionService getInstance() {
         if(instance==null){
@@ -182,5 +180,4 @@ public class ChattingConnectionService extends Service {
         }
         return instance;
     }
-
 }

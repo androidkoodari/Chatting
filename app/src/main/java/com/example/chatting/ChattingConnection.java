@@ -1,7 +1,9 @@
 package com.example.chatting;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
@@ -20,10 +22,16 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 //import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.chat2.Chat;
+import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jxmpp.jid.EntityBareJid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,9 +48,9 @@ public class ChattingConnection implements ConnectionListener{
     private  final String mPassword;
     private  final String mServiceName;
     private XMPPTCPConnection mConnection;
+    private BroadcastReceiver uiThreadMessageReceiver;
 
-   // private static ChattingConnection instance = null;
-
+    public void onReceive(Context ctx, Intent intent) {}
 
     public static enum ConnectionState
     {
@@ -54,7 +62,6 @@ public class ChattingConnection implements ConnectionListener{
         LOGGED_IN , LOGGED_OUT;
 
     }
-
 
 
     public ChattingConnection( Context context)
@@ -121,7 +128,6 @@ public class ChattingConnection implements ConnectionListener{
     }
 
 
-
     public void disconnect()
     {
         Log.d(TAG,"Disconnecting from server "+ mServiceName);
@@ -149,6 +155,8 @@ public class ChattingConnection implements ConnectionListener{
         ChattingConnectionService.sConnectionState=ConnectionState.CONNECTED;
         Log.d(TAG,"Connected Successfully");
         XMPPConn.getInstance().setConnection(mConnection);
+
+        setupUiThreadBroadCastMessageReceiver();
     }
 
     @Override
@@ -202,6 +210,65 @@ public class ChattingConnection implements ConnectionListener{
 
     }
 
+
+    private void setupUiThreadBroadCastMessageReceiver()
+    {
+        Log.d(TAG,"setupUiThreadBroadCastMessageReceiver()");
+
+        uiThreadMessageReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //Check if the Intents purpose is to send the message.
+                String action = intent.getAction();
+
+                if( action.equals(ChattingConnectionService.SEND_MESSAGE))
+                {
+                   /* Log.d(TAG,"onReceive BUNDLE_MESSAGE_BODY is :"+
+                            intent.getStringExtra(ChattingConnectionService.BUNDLE_MESSAGE_BODY));
+
+                    Log.d(TAG,"onReceive BUNDLE_TO is :"+
+                            intent.getStringExtra(ChattingConnectionService.BUNDLE_TO));*/
+
+                    //SENDS THE ACTUAL MESSAGE TO THE SERVER
+                    sendMessage(intent.getStringExtra(ChattingConnectionService.BUNDLE_MESSAGE_BODY),
+                            intent.getStringExtra(ChattingConnectionService.BUNDLE_TO));
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ChattingConnectionService.SEND_MESSAGE);
+        mApplicationContext.registerReceiver(uiThreadMessageReceiver,filter);
+
+    }
+
+    private void sendMessage ( String body ,String toJid)
+    {
+        //Log.d(TAG,"Sending message to :"+ toJid);
+        //Log.d(TAG,"Message is : "+ body);
+
+        EntityBareJid jid = null;
+
+        ChatManager chatManager = ChatManager.getInstanceFor(mConnection);
+
+        try {
+            jid = JidCreate.entityBareFrom(toJid);
+        } catch (XmppStringprepException e) {
+            e.printStackTrace();
+        }
+        Chat chat = chatManager.chatWith(jid);
+
+        try {
+            Message message = new Message(jid, Message.Type.chat);
+            message.setBody(body);
+            chat.send(message);
+
+        } catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 

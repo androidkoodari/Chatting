@@ -12,6 +12,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.roster.Roster;
+import org.jivesoftware.smack.roster.RosterEntry;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -21,6 +26,11 @@ public class ContactListActivity extends AppCompatActivity {
     private RecyclerView contactsRecyclerView;
     private ContactAdapter mAdapter;
     private ChattingConnectionService mChattingConnectionService;
+    private Roster mRoster;
+
+    ContactModel model = ContactModel.get(getBaseContext());
+    List<Contact> contacts = model.getContacts();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +40,19 @@ public class ContactListActivity extends AppCompatActivity {
         contactsRecyclerView = (RecyclerView) findViewById(R.id.contact_list_recycler_view);
         contactsRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
 
-        ContactModel model = ContactModel.get(getBaseContext());
-        List<Contact> contacts = model.getContacts();
-
         mAdapter = new ContactAdapter(contacts);
         contactsRecyclerView.setAdapter(mAdapter);
         mChattingConnectionService = ChattingConnectionService.getInstance();
+
+        try{
+            mRoster = mChattingConnectionService.getBuddies();
+        }
+        catch (InterruptedException| SmackException.NotLoggedInException |
+                SmackException.NotConnectedException e){
+        }
+        updateContactlist();
     }
+
 
     private class ContactHolder extends RecyclerView.ViewHolder
     {
@@ -58,17 +74,6 @@ public class ContactListActivity extends AppCompatActivity {
                             , ChatActivity.class);
                     intent.putExtra("EXTRA_CONTACT_JID", mContact.getJid());
                     startActivity(intent);
-
-                    //******** only for testing
-                    try{
-                        mChattingConnectionService.getBuddies();
-
-                    }
-                    catch (InterruptedException| SmackException.NotLoggedInException |
-                            SmackException.NotConnectedException e){
-                    }
-
-                    //*********
                 }
             });
         }
@@ -118,6 +123,25 @@ public class ContactListActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return mContacts.size();
+        }
+    }
+
+    public void updateContactlist(){
+
+        Log.d(TAG,"updateContactlist() ");
+
+        Collection<RosterEntry> entries = mRoster.getEntries();
+
+        List<RosterEntry> roasterInfo = new ArrayList<RosterEntry>();
+        for (RosterEntry entry : entries) {
+            roasterInfo.add(entry);
+            Log.d(TAG,"Here: " + entry.toString());
+           // Log.d(TAG,"User: " + entry.getUser());//get userinfo
+            Log.d(TAG,"User Name:"+entry.getName());//get username
+           // Log.d(TAG,"User Status: "+entry.getStatus()); //get status of user
+
+            Contact contact = new Contact(entry.toString());
+            contacts.add(contact);
         }
     }
 }
