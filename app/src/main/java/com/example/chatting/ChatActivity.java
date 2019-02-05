@@ -1,9 +1,13 @@
 package com.example.chatting;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.telecom.ConnectionService;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,6 +24,7 @@ public class ChatActivity extends AppCompatActivity {
     private String contactJid = null;
     private EditText mEdittext_chatbox = null;
     private Intent JidIntent = null;
+    private BroadcastReceiver mBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,4 +81,49 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                switch (action)
+                {
+                    case ChattingConnectionService.NEW_MESSAGE:
+                        String from = intent.getStringExtra(ChattingConnectionService.BUNDLE_FROM_JID);
+                        String body = intent.getStringExtra(ChattingConnectionService.BUNDLE_MESSAGE_BODY);
+
+                        if ( from.equals(contactJid))
+                        {
+                           /* mChatView.*/receiveMessage(body);
+
+                        }else
+                        {
+                            Log.d(TAG,"Got a message from jid :"+from);
+                        }
+
+                        return;
+                }
+
+            }
+        };
+
+        IntentFilter filter = new IntentFilter(ChattingConnectionService.NEW_MESSAGE);
+        registerReceiver(mBroadcastReceiver,filter);
+
+
+    }
+
+
+    public void receiveMessage(String body){
+
+
+        Log.d(TAG,"receiveMessage()  Got a message :"+body);
+
+
+    }
+
 }

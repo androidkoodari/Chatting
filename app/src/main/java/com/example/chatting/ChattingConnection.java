@@ -24,6 +24,7 @@ import org.jivesoftware.smack.XMPPException;
 //import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.chat2.Chat;
 import org.jivesoftware.smack.chat2.ChatManager;
+import org.jivesoftware.smack.chat2.IncomingChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
@@ -96,7 +97,7 @@ public class ChattingConnection implements ConnectionListener{
         //config.setRosterLoadedAtLogin(true);
         config.setResource("Chatting");
 
-        config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled); //*******
+        config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled); //********
         config.setDebuggerEnabled(true);//********
        // config.setPort(5222);//***
         //Set up the ui thread broadcast message receiver.
@@ -125,6 +126,39 @@ public class ChattingConnection implements ConnectionListener{
         ReconnectionManager reconnectionManager = ReconnectionManager.getInstanceFor(mConnection);
         reconnectionManager.setEnabledPerDefault(true);
         reconnectionManager.enableAutomaticReconnection();
+
+
+        ChatManager.getInstanceFor(mConnection).addIncomingListener(new IncomingChatMessageListener() {
+            @Override
+            public void newIncomingMessage(EntityBareJid messageFrom, Message message, Chat chat) {
+                ///ADDED
+                Log.d(TAG,"message.getBody() :"+message.getBody());
+                Log.d(TAG,"message.getFrom() :"+message.getFrom());
+
+                String from = message.getFrom().toString();
+
+                String contactJid="";
+                if ( from.contains("/"))
+                {
+                    contactJid = from.split("/")[0];
+                    Log.d(TAG,"The real jid is :" +contactJid);
+                    Log.d(TAG,"The message is from :" +from);
+                }else
+                {
+                    contactJid=from;
+                }
+
+                //Bundle up the intent and send the broadcast.
+                Intent intent = new Intent(ChattingConnectionService.NEW_MESSAGE);
+                intent.setPackage(mApplicationContext.getPackageName());
+                intent.putExtra(ChattingConnectionService.BUNDLE_FROM_JID,contactJid);
+                intent.putExtra(ChattingConnectionService.BUNDLE_MESSAGE_BODY,message.getBody());
+                mApplicationContext.sendBroadcast(intent);
+                Log.d(TAG,"Received message from :"+contactJid+" broadcast sent.");
+                ///ADDED
+
+            }
+        });
     }
 
 
