@@ -28,8 +28,8 @@ public class ChatModel {
     private void populateWithInitialMessages(Context context)
     {
 
-           Message message1 = new Message("test message");
-           mMessages.add(message1);
+          // Message message1 = new Message("test message");
+          // mMessages.add(message1);
 
     }
 

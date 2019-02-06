@@ -168,9 +168,12 @@ public class ChatActivity extends AppCompatActivity {
         Log.d(TAG,"receiveMessage()  Got a message :"+body);
 
         Message message = new Message(body.toString());
-        int insertIndex = 0;
-        chatMessages.add(insertIndex,message);
-        mAdapter.notifyItemInserted(insertIndex);
+
+        Log.d(TAG,"receiveMessage()  Got a message toString() :"+body);
+
+        chatMessages.add(message);
+        mAdapter.notifyDataSetChanged();
+
     }
 
     private class MessageAdapter extends RecyclerView.Adapter<MessageHolder>
