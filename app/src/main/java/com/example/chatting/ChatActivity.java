@@ -6,13 +6,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.telecom.ConnectionService;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -25,6 +31,11 @@ public class ChatActivity extends AppCompatActivity {
     private EditText mEdittext_chatbox = null;
     private Intent JidIntent = null;
     private BroadcastReceiver mBroadcastReceiver;
+    private RecyclerView mChatRecyclerView;
+    private MessageAdapter mAdapter;
+
+    ChatModel model = ChatModel.get(getBaseContext());
+    List<Message> chatMessages = model.getMessages();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +45,12 @@ public class ChatActivity extends AppCompatActivity {
         mChatView =(RecyclerView) findViewById(R.id.chat_view);
         mEdittext_chatbox = (EditText) findViewById(R.id.edittext_chatbox);
         mSendButton =(Button) findViewById(R.id.button_chatbox_send);
+
+        mChatRecyclerView = (RecyclerView) findViewById(R.id.chat_view);
+        mChatRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+
+        mAdapter = new MessageAdapter(chatMessages);
+        mChatRecyclerView.setAdapter(mAdapter);
 
         /*mChatView.setEventListener(new ChatViewEventListener() {
             @Override
@@ -82,6 +99,35 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    private class MessageHolder extends RecyclerView.ViewHolder {
+
+        private TextView messageTextView;
+        private Message mMessage;
+
+        public MessageHolder(View itemView) {
+            super(itemView);
+
+            messageTextView = (TextView) itemView.findViewById(R.id.message_jid);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+        }
+        public void bindMessage( Message message)
+        {
+            mMessage = message;
+            if (mMessage == null)
+            {
+                Log.d(TAG,"Trying to work on a null Message object ,returning.");
+                return;
+            }
+            messageTextView.setText(mMessage.getJid());
+
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -114,16 +160,51 @@ public class ChatActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(ChattingConnectionService.NEW_MESSAGE);
         registerReceiver(mBroadcastReceiver,filter);
 
-
     }
 
 
     public void receiveMessage(String body){
 
-
         Log.d(TAG,"receiveMessage()  Got a message :"+body);
+
+        Message message = new Message(body.toString());
+        int insertIndex = 0;
+        chatMessages.add(insertIndex,message);
+        mAdapter.notifyItemInserted(insertIndex);
+    }
+
+    private class MessageAdapter extends RecyclerView.Adapter<MessageHolder>
+    {
+        private List<Message> mMessages;
+
+        public MessageAdapter( List<Message> messageList)
+        {
+            mMessages = messageList;
+        }
+
+        @Override
+        public MessageHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+            View view = layoutInflater
+                    .inflate(R.layout.list_item_message, parent,
+                            false);
+            return new MessageHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(MessageHolder holder, int position) {
+            Message message = mMessages.get(position);
+            holder.bindMessage(message);
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return mMessages.size();
+        }
+        }
 
 
     }
 
-}

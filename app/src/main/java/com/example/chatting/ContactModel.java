@@ -28,9 +28,8 @@ public class ContactModel {
 
     private void populateWithInitialContacts(Context context)
     {
-        //Create the Foods and add them to the list;
 
-     //   Contact contact1 = new Contact("User1@server.com");
+     //  Contact contact1 = new Contact("User1@server.com");
      //   mContacts.add(contact1);
 
     }
