@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -42,7 +43,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mChatView = (RecyclerView) findViewById(R.id.chat_view);
+        //mChatView = (RecyclerView) findViewById(R.id.chat_view);
         mEdittext_chatbox = (EditText) findViewById(R.id.edittext_chatbox);
         mSendButton = (Button) findViewById(R.id.button_chatbox_send);
 
@@ -51,6 +52,7 @@ public class ChatActivity extends AppCompatActivity {
 
         mAdapter = new MessageAdapter(chatMessages);
         mChatRecyclerView.setAdapter(mAdapter);
+
 
         /*ChatView.setEventListener(new ChatViewEventListener() {
             @Override
@@ -168,6 +170,8 @@ public class ChatActivity extends AppCompatActivity {
         Log.d(TAG, "receiveMessage()  Got a message toString() :" + body);
 
         chatMessages.add(message);
+        mChatRecyclerView.smoothScrollToPosition(
+                mChatRecyclerView.getAdapter().getItemCount()-1);
         mAdapter.notifyDataSetChanged();
 
     }
@@ -205,10 +209,12 @@ public class ChatActivity extends AppCompatActivity {
     public void sendMessage(String body) {
 
         Message message = new Message(body.toString());
-
+        mEdittext_chatbox.setText("");
         chatMessages.add(message);
-        mAdapter.notifyDataSetChanged();
 
+        mChatRecyclerView.smoothScrollToPosition(
+                mChatRecyclerView.getAdapter().getItemCount()-1);
+        mAdapter.notifyDataSetChanged();
     }
 }
 
