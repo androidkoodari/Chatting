@@ -1,8 +1,10 @@
 package com.example.chatting;
 
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static java.security.AccessController.getContext;
 
-public class ContactListActivity extends AppCompatActivity {
+
+public class ContactListActivity extends AppCompatActivity{
 
     private static final String TAG = "ContactListActivity";
     private RecyclerView contactsRecyclerView;
@@ -37,7 +41,16 @@ public class ContactListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_list);
 
+
         contactsRecyclerView = (RecyclerView) findViewById(R.id.contact_list_recycler_view);
+
+//*****
+
+
+
+//*******
+
+
         contactsRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
 
         mAdapter = new ContactAdapter(contacts);

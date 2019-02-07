@@ -29,8 +29,32 @@ public class ContactModel {
     private void populateWithInitialContacts(Context context)
     {
 
-     //  Contact contact1 = new Contact("User1@server.com");
-     //   mContacts.add(contact1);
+       /* Contact contact1 = new Contact("User1@server.com");
+        mContacts.add(contact1);
+
+        Contact contact2 = new Contact("User1@server.com");
+        mContacts.add(contact2);
+
+        Contact contact3 = new Contact("User1@server.com");
+        mContacts.add(contact3);
+
+        Contact contact4 = new Contact("User1@server.com");
+        mContacts.add(contact4);
+
+        Contact contact5 = new Contact("User1@server.com");
+        mContacts.add(contact5);
+
+        Contact contact6 = new Contact("User1@server.com");
+        mContacts.add(contact6);
+
+        Contact contact7 = new Contact("User1@server.com");
+        mContacts.add(contact7);
+
+        Contact contact8 = new Contact("User1@server.com");
+        mContacts.add(contact8);
+
+        Contact contact9 = new Contact("User1@server.com");
+        mContacts.add(contact9);*/
 
     }
 
