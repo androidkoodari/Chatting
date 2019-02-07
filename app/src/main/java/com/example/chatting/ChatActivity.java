@@ -42,9 +42,9 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        mChatView =(RecyclerView) findViewById(R.id.chat_view);
+        mChatView = (RecyclerView) findViewById(R.id.chat_view);
         mEdittext_chatbox = (EditText) findViewById(R.id.edittext_chatbox);
-        mSendButton =(Button) findViewById(R.id.button_chatbox_send);
+        mSendButton = (Button) findViewById(R.id.button_chatbox_send);
 
         mChatRecyclerView = (RecyclerView) findViewById(R.id.chat_view);
         mChatRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
@@ -52,7 +52,7 @@ public class ChatActivity extends AppCompatActivity {
         mAdapter = new MessageAdapter(chatMessages);
         mChatRecyclerView.setAdapter(mAdapter);
 
-        /*mChatView.setEventListener(new ChatViewEventListener() {
+        /*ChatView.setEventListener(new ChatViewEventListener() {
             @Override
             public void userIsTyping() {
                 //Here you know that the user is typing
@@ -64,13 +64,13 @@ public class ChatActivity extends AppCompatActivity {
             }
         });*/
 
-      //  mSendButton = mChatView.getSendButton();
+        //  mSendButton = mChatView.getSendButton();
 
         JidIntent = getIntent();
         contactJid = JidIntent.getStringExtra("EXTRA_CONTACT_JID");
         setTitle(contactJid);
 
-         mSendButton.setOnClickListener(new View.OnClickListener() {
+        mSendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -87,10 +87,9 @@ public class ChatActivity extends AppCompatActivity {
                     sendBroadcast(intent);
 
                     //Update the chat view.
-                 //   mChatView.sendMessage();
+                    sendMessage(mEdittext_chatbox.getText().toString());
 
-                }
-                else {
+                } else {
                     Toast.makeText(getApplicationContext(),
                             "Client not connected to server ,Message not sent!",
                             Toast.LENGTH_LONG).show();
@@ -116,12 +115,11 @@ public class ChatActivity extends AppCompatActivity {
                 }
             });
         }
-        public void bindMessage( Message message)
-        {
+
+        public void bindMessage(Message message) {
             mMessage = message;
-            if (mMessage == null)
-            {
-                Log.d(TAG,"Trying to work on a null Message object ,returning.");
+            if (mMessage == null) {
+                Log.d(TAG, "Trying to work on a null Message object ,returning.");
                 return;
             }
             messageTextView.setText(mMessage.getJid());
@@ -136,19 +134,17 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
-                switch (action)
-                {
+                switch (action) {
                     case ChattingConnectionService.NEW_MESSAGE:
                         String from = intent.getStringExtra(ChattingConnectionService.BUNDLE_FROM_JID);
                         String body = intent.getStringExtra(ChattingConnectionService.BUNDLE_MESSAGE_BODY);
 
-                        if ( from.equals(contactJid))
-                        {
-                           /* mChatView.*/receiveMessage(body);
+                        if (from.equals(contactJid)) {
+                            /* mChatView.*/
+                            receiveMessage(body);
 
-                        }else
-                        {
-                            Log.d(TAG,"Got a message from jid :"+from);
+                        } else {
+                            Log.d(TAG, "Got a message from jid :" + from);
                         }
 
                         return;
@@ -158,30 +154,28 @@ public class ChatActivity extends AppCompatActivity {
         };
 
         IntentFilter filter = new IntentFilter(ChattingConnectionService.NEW_MESSAGE);
-        registerReceiver(mBroadcastReceiver,filter);
+        registerReceiver(mBroadcastReceiver, filter);
 
     }
 
 
-    public void receiveMessage(String body){
+    public void receiveMessage(String body) {
 
-        Log.d(TAG,"receiveMessage()  Got a message :"+body);
+        Log.d(TAG, "receiveMessage()  Got a message :" + body);
 
         Message message = new Message(body.toString());
 
-        Log.d(TAG,"receiveMessage()  Got a message toString() :"+body);
+        Log.d(TAG, "receiveMessage()  Got a message toString() :" + body);
 
         chatMessages.add(message);
         mAdapter.notifyDataSetChanged();
 
     }
 
-    private class MessageAdapter extends RecyclerView.Adapter<MessageHolder>
-    {
+    private class MessageAdapter extends RecyclerView.Adapter<MessageHolder> {
         private List<Message> mMessages;
 
-        public MessageAdapter( List<Message> messageList)
-        {
+        public MessageAdapter(List<Message> messageList) {
             mMessages = messageList;
         }
 
@@ -206,8 +200,15 @@ public class ChatActivity extends AppCompatActivity {
         public int getItemCount() {
             return mMessages.size();
         }
-        }
+    }
 
+    public void sendMessage(String body) {
+
+        Message message = new Message(body.toString());
+
+        chatMessages.add(message);
+        mAdapter.notifyDataSetChanged();
 
     }
+}
 

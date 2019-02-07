@@ -44,13 +44,6 @@ public class ContactListActivity extends AppCompatActivity{
 
         contactsRecyclerView = (RecyclerView) findViewById(R.id.contact_list_recycler_view);
 
-//*****
-
-
-
-//*******
-
-
         contactsRecyclerView.setLayoutManager(new LinearLayoutManager(getBaseContext()));
 
         mAdapter = new ContactAdapter(contacts);
