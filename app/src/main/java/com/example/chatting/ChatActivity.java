@@ -35,6 +35,8 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView mChatRecyclerView;
     private MessageAdapter mAdapter;
 
+    private boolean messageTypeSend = false;
+
     ChatModel model = ChatModel.get(getBaseContext());
     List<Message> chatMessages = model.getMessages();
 
@@ -89,6 +91,8 @@ public class ChatActivity extends AppCompatActivity {
                     sendBroadcast(intent);
 
                     //Update the chat view.
+                    messageTypeSend=true;
+
                     sendMessage(mEdittext_chatbox.getText().toString());
 
                 } else {
@@ -108,7 +112,14 @@ public class ChatActivity extends AppCompatActivity {
         public MessageHolder(View itemView) {
             super(itemView);
 
+            Log.d(TAG, " MessageHolder(View itemView)");
+
             messageTextView = (TextView) itemView.findViewById(R.id.message_jid);
+
+            if(messageTypeSend)
+                messageTextView.setBackgroundColor(Color.YELLOW);
+            else
+                messageTextView.setBackgroundColor(Color.GREEN);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -119,6 +130,8 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         public void bindMessage(Message message) {
+            Log.d(TAG, " bindMessage");
+
             mMessage = message;
             if (mMessage == null) {
                 Log.d(TAG, "Trying to work on a null Message object ,returning.");
@@ -143,6 +156,8 @@ public class ChatActivity extends AppCompatActivity {
 
                         if (from.equals(contactJid)) {
                             /* mChatView.*/
+                            messageTypeSend=false;
+
                             receiveMessage(body);
 
                         } else {
@@ -177,6 +192,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private class MessageAdapter extends RecyclerView.Adapter<MessageHolder> {
+
         private List<Message> mMessages;
 
         public MessageAdapter(List<Message> messageList) {
@@ -210,11 +226,13 @@ public class ChatActivity extends AppCompatActivity {
 
         Message message = new Message(body.toString());
         mEdittext_chatbox.setText("");
+
         chatMessages.add(message);
 
         mChatRecyclerView.smoothScrollToPosition(
                 mChatRecyclerView.getAdapter().getItemCount()-1);
         mAdapter.notifyDataSetChanged();
+
     }
 }
 
