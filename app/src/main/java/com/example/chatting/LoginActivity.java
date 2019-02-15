@@ -25,9 +25,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import static android.Manifest.permission.READ_CONTACTS;
+import static android.app.PendingIntent.getActivity;
 
 /**
  * A login screen that offers login via jid/password.
@@ -272,13 +274,20 @@ public class LoginActivity extends AppCompatActivity
                         startActivity(contactlist);
                         finish();
                         break;
+                    case ChattingConnectionService.DISCONNECTED:
+                        Log.d(TAG,"Got a broadcast to close Progress bar");
+                        showProgress(false);
+                        Toast.makeText(getApplicationContext(), "Wrong username or password.",
+                                Toast.LENGTH_SHORT).show();
+                        break;
                 }
-
             }
         };
 
         IntentFilter filter = new IntentFilter(ChattingConnectionService.UI_AUTHENTICATED);
         this.registerReceiver(mBroadcastReceiver, filter);
-    }
 
+        IntentFilter filter2 = new IntentFilter(ChattingConnectionService.DISCONNECTED);
+        this.registerReceiver(mBroadcastReceiver, filter2);
+    }
 }

@@ -32,8 +32,8 @@ public class ChatActivity extends AppCompatActivity {
     private EditText mEdittext_chatbox = null;
     private Intent JidIntent = null;
     private BroadcastReceiver mBroadcastReceiver;
-    private RecyclerView mChatRecyclerView;
-    private MessageAdapter mAdapter;
+    private RecyclerView mChatRecyclerView=null;
+    private MessageAdapter mAdapter=null;
 
     private boolean messageTypeSend = false;
 
@@ -42,6 +42,10 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.d(TAG, " onCreate");
+        chatMessages.clear();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
@@ -79,7 +83,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 if (ChattingConnectionService.getState().equals(ChattingConnection.ConnectionState.CONNECTED)) {
-                    Log.d(TAG, "The client is connected to the server,Sendint Message");
+                    Log.d(TAG, "The client is connected to the server, sending Message");
                     //Send the message to the server
 
                     Intent intent = new Intent(ChattingConnectionService.SEND_MESSAGE);
@@ -232,7 +236,15 @@ public class ChatActivity extends AppCompatActivity {
         mChatRecyclerView.smoothScrollToPosition(
                 mChatRecyclerView.getAdapter().getItemCount()-1);
         mAdapter.notifyDataSetChanged();
-
     }
+
+    @Override
+    protected void onStop()
+    {
+        unregisterReceiver(mBroadcastReceiver);
+        super.onStop();
+        finish();
+    }
+
 }
 

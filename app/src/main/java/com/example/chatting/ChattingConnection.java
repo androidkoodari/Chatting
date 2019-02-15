@@ -97,11 +97,11 @@ public class ChattingConnection implements ConnectionListener{
         //config.setRosterLoadedAtLogin(true);
         config.setResource("Chatting");
 
-        config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled); //********
+        config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
         config.setDebuggerEnabled(true);//********
        // config.setPort(5222);//***
         //Set up the ui thread broadcast message receiver.
-        //setupUiThreadBroadCastMessageReceiver();
+        setupUiThreadBroadCastMessageReceiver();
 
         mConnection = new XMPPTCPConnection(config.build());
         mConnection.addConnectionListener(this);
@@ -166,21 +166,20 @@ public class ChattingConnection implements ConnectionListener{
     {
         Log.d(TAG,"Disconnecting from server "+ mServiceName);
 
-   /*    try
-        {
+       //try
+       // {
             if (mConnection != null)
             {
                 mConnection.disconnect();
             }
 
-        }catch (SmackException.NotConnectedException e)        {
-            ChattingConnectionService.sConnectionState=ConnectionState.DISCONNECTED;
-            e.printStackTrace();
+      //  }catch (SmackException.NotConnectedException e)
+            {
+            ChattingConnectionService.sConnectionState = ConnectionState.DISCONNECTED;
+          //  e.printStackTrace();
+            }
 
-        }
-        mConnection = null;
-
-*/
+        connectionDisconnected();
     }
 
 
@@ -188,6 +187,7 @@ public class ChattingConnection implements ConnectionListener{
     public void connected(XMPPConnection connection) {
         ChattingConnectionService.sConnectionState=ConnectionState.CONNECTED;
         Log.d(TAG,"Connected Successfully");
+
         XMPPConn.getInstance().setConnection(mConnection);
 
         setupUiThreadBroadCastMessageReceiver();
@@ -199,6 +199,8 @@ public class ChattingConnection implements ConnectionListener{
         Log.d(TAG,"Authenticated Successfully");
 
         showContactListActivityWhenAuthenticated();
+
+        XMPPConn.getInstance().setConnection(mConnection);
     }
 
     @Override
@@ -206,12 +208,16 @@ public class ChattingConnection implements ConnectionListener{
         ChattingConnectionService.sConnectionState=ConnectionState.DISCONNECTED;
         Log.d(TAG,"Connectionclosed()");
 
+        XMPPConn.getInstance().setConnection(mConnection);
+
     }
 
     @Override
     public void connectionClosedOnError(Exception e) {
         ChattingConnectionService.sConnectionState=ConnectionState.DISCONNECTED;
         Log.d(TAG,"ConnectionClosedOnError, error "+ e.toString());
+
+        XMPPConn.getInstance().setConnection(mConnection);
 
     }
 
@@ -227,6 +233,7 @@ public class ChattingConnection implements ConnectionListener{
         ChattingConnectionService.sConnectionState = ConnectionState.CONNECTED;
         Log.d(TAG,"ReconnectionSuccessful()");
 
+        XMPPConn.getInstance().setConnection(mConnection);
     }
 
     @Override
@@ -241,7 +248,6 @@ public class ChattingConnection implements ConnectionListener{
         i.setPackage(mApplicationContext.getPackageName());
         mApplicationContext.sendBroadcast(i);
         Log.d(TAG,"Sent the broadcast that we are authenticated");
-
     }
 
 
@@ -278,8 +284,8 @@ public class ChattingConnection implements ConnectionListener{
 
     private void sendMessage ( String body ,String toJid)
     {
-        //Log.d(TAG,"Sending message to :"+ toJid);
-        //Log.d(TAG,"Message is : "+ body);
+        Log.d(TAG,"Sending message to :"+ toJid);
+        Log.d(TAG,"Message is : "+ body);
 
         EntityBareJid jid = null;
 
@@ -302,6 +308,15 @@ public class ChattingConnection implements ConnectionListener{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private void connectionDisconnected()
+    {
+        Intent i = new Intent(ChattingConnectionService.DISCONNECTED);
+        i.setPackage(mApplicationContext.getPackageName());
+        mApplicationContext.sendBroadcast(i);
+        Log.d(TAG,"Sent the broadcast that we are disconnected");
+
     }
 }
 
